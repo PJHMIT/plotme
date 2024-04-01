@@ -11,10 +11,6 @@ import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-# added this line
-# and this line
-
-
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -222,18 +218,10 @@ class MainWindow(QMainWindow):
 
         ### end of populate the plot settings layout ###
 
-        # add a save button
-        self.save_button = QPushButton('Save')
-        self.save_button.clicked.connect(self.save_button)  # Connect the button click event to the function
-        self.layout.addWidget(self.save_button)
-
-        # add a save directory text box
-        self.save_dir_text = QTextEdit()
-        self.save_dir_text.setFixedHeight(35)
-        self.layout.addWidget(self.save_dir_text)
-        
         # Set the layout of the central widget
         self.central_widget.setLayout(self.layout)
+
+        
 
 
     # if colormap_combo is clicked, set the colormap
@@ -406,3 +394,4 @@ sys.exit(app.exec_())
 
 # Additions
 # 1. plot multiple data sets as multiple lines
+# 2. add a save button and save directory text box
