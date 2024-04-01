@@ -11,10 +11,6 @@ import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-# added this line
-# and this line
-
-
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -234,6 +230,8 @@ class MainWindow(QMainWindow):
         
         # Set the layout of the central widget
         self.central_widget.setLayout(self.layout)
+
+        
 
 
     # if colormap_combo is clicked, set the colormap
