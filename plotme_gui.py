@@ -218,16 +218,6 @@ class MainWindow(QMainWindow):
 
         ### end of populate the plot settings layout ###
 
-        # add a save button
-        self.save_button = QPushButton('Save')
-        self.save_button.clicked.connect(self.save_button)  # Connect the button click event to the function
-        self.layout.addWidget(self.save_button)
-
-        # add a save directory text box
-        self.save_dir_text = QTextEdit()
-        self.save_dir_text.setFixedHeight(35)
-        self.layout.addWidget(self.save_dir_text)
-        
         # Set the layout of the central widget
         self.central_widget.setLayout(self.layout)
 
@@ -404,3 +394,4 @@ sys.exit(app.exec_())
 
 # Additions
 # 1. plot multiple data sets as multiple lines
+# 2. add a save button and save directory text box
