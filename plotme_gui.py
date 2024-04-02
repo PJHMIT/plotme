@@ -83,6 +83,12 @@ class MainWindow(QMainWindow):
         self.left_col_settings.addWidget(self.z_axis_label)
         self.left_col_settings.addWidget(self.z_axis_combo)
         
+        # create a box to choose the div channel
+        self.div_channel_label = QLabel('Div Channel:')
+        self.div_channel_combo = QComboBox()
+        self.left_col_settings.addWidget(self.div_channel_label)
+        self.left_col_settings.addWidget(self.div_channel_combo)
+
         # add a plot button
         self.plot_button = QPushButton('Plot')
         self.plot_button.clicked.connect(self.plot_button_clicked)  # Connect the button click event to the function
@@ -102,7 +108,7 @@ class MainWindow(QMainWindow):
         self.central_col_settings.addWidget(self.metadata_frame)
         ### end of populate the central column layout ###
 
-
+        ### populate the right column layout ###
         # Create a vertical layout
         log_layout = QVBoxLayout()
 
@@ -116,38 +122,42 @@ class MainWindow(QMainWindow):
         log_layout.addWidget(self.logy_checkbox)
         log_layout.addWidget(self.logz_checkbox)
 
-        # Add the horizontal layout to the main layout
+        # Add the log layout to the right column layout
         self.right_col_settings.addLayout(log_layout)
 
-        # Create a horizontal layout for auto clim
-        self.clim_layout = QHBoxLayout()
-        self.auto_clim_checkbox = QCheckBox("Auto clim")
-        self.clim_layout.addWidget(self.auto_clim_checkbox)
+        # Create a horizontal layout for clim
+        # self.clim_layout = QHBoxLayout()
         # self.right_col_settings.addLayout(self.clim_layout)
+
+        # Create a checkbox for auto clim
+        self.auto_clim_checkbox = QCheckBox("Auto clim")
+        self.right_col_settings.addWidget(self.auto_clim_checkbox)
         # check auto clim by default
         self.auto_clim_checkbox.setChecked(True)
 
         # create a vertical layout for clim min and clim max
         self.clim_min_max_layout = QVBoxLayout()
-        self.clim_layout.addLayout(self.clim_min_max_layout)
+        self.right_col_settings.addLayout(self.clim_min_max_layout)
 
         # Create a horizontal layout for clim min
-        self.clim_min_layout = QHBoxLayout()
+        # self.clim_min_layout = QHBoxLayout()
         self.clim_min_label = QLabel("clim min")
         self.clim_min_text = QTextEdit()
         self.clim_min_text.setFixedHeight(35)
-        self.clim_min_layout.addWidget(self.clim_min_label)
-        self.clim_min_layout.addWidget(self.clim_min_text)
-        self.clim_min_max_layout.addLayout(self.clim_min_layout)
+        self.clim_min_text.setFixedWidth(200)
+        self.right_col_settings.addWidget(self.clim_min_label)
+        self.right_col_settings.addWidget(self.clim_min_text) ## BRING THIS LINE BACK
+        # self.clim_min_max_layout.addLayout(self.clim_min_layout)
 
         # Create a horizontal layout for clim max
-        self.clim_max_layout = QHBoxLayout()
+        # self.clim_max_layout = QHBoxLayout()
         self.clim_max_label = QLabel("clim max")
         self.clim_max_text = QTextEdit()
         self.clim_max_text.setFixedHeight(35)
-        self.clim_max_layout.addWidget(self.clim_max_label)
-        self.clim_max_layout.addWidget(self.clim_max_text)
-        self.clim_min_max_layout.addLayout(self.clim_max_layout)
+        self.clim_max_text.setFixedWidth(200)
+        self.right_col_settings.addWidget(self.clim_max_label)
+        self.right_col_settings.addWidget(self.clim_max_text)
+        # self.clim_min_max_layout.addLayout(self.clim_max_layout)
 
         # create a button for multiple lines on off
         self.waterfall_checkbox = QCheckBox("Waterfall")
@@ -282,7 +292,10 @@ class MainWindow(QMainWindow):
             self.z_axis_combo.addItems(self.columns)
         else:
             self.z_axis_combo.clear()
-    
+        self.div_channel_combo.clear()
+        self.div_channel_combo.addItems(['1'])
+        self.div_channel_combo.addItems(self.columns)
+
     # if plot_button is clicked, plot the data
     def plot_button_clicked(self):
         self.sub_dir = self.sub_dir_spinbox.value()
@@ -314,6 +327,8 @@ class MainWindow(QMainWindow):
         # Redraw the plots
         x_axis = self.x_axis_combo.currentText()
         y_axis = self.y_axis_combo.currentText()
+        div_channel = self.div_channel_combo.currentText()
+
         if self.data_type == '2D':
             z_axis = self.z_axis_combo.currentText()
             # verify compliance with pcolormesh - equi length
@@ -336,8 +351,10 @@ class MainWindow(QMainWindow):
                 else:
                     props = dict(rasterized=True, cmap=colormap) 
                     
-            
-            self.ax.pcolormesh(data[x_axis], data[y_axis], data[z_axis], **props)
+            if div_channel == '1':
+                self.ax.pcolormesh(data[x_axis], data[y_axis], data[z_axis], **props)
+            else:
+                self.ax.pcolormesh(data[x_axis], data[y_axis], data[z_axis]/data[div_channel], **props)
             self.ax.set_xlabel(x_axis)
             self.ax.set_ylabel(y_axis)
             # define the title of the plot to be the the directory\sub dir, new line, z axis
@@ -359,7 +376,10 @@ class MainWindow(QMainWindow):
             plt.colorbar(self.ax.collections[0], cax=self.cax)
 
         else:
-            self.ax.plot(data[x_axis], data[y_axis], '.')
+            if div_channel == '1':
+                self.ax.plot(data[x_axis], data[y_axis], '.')
+            else:
+                self.ax.plot(data[x_axis], data[y_axis]/data[div_channel], '.')
             self.ax.set_xlabel(x_axis)
             self.ax.set_ylabel(y_axis)
             self.ax.set_title(y_axis)
