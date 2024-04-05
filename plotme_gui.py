@@ -112,16 +112,18 @@ class MainWindow(QMainWindow):
         self.col1_layout.addWidget(self.plot_button)
         # set minimum height of the plot button
         self.plot_button.setFixedHeight(100)
-        # make the plot botton bold font and 2 point outline, white background
-        self.plot_button.setStyleSheet("font: bold; border: 2px solid black; background-color: white;")
+        # make the plot botton bold font and 2 point outline, white background, font 18
+        self.plot_button.setStyleSheet("font: bold 18px; color: black; background-color: white; border: 2px solid black;")
         ### end of populate the col1_layout ###
 
 
-        ### populate the central column layout ###
+        ### populate the 3rd column layout ###
         # create a frame for the time
         self.time_frame = QFrame()
         self.time_text = QTextEdit(self.time_frame)
         self.col3_layout.addWidget(self.time_frame)
+        # set the height of the time frame
+        self.time_frame.setFixedHeight(50)
         
         # Create a frame for the metadata
         self.metadata_frame = QFrame()
@@ -216,8 +218,18 @@ class MainWindow(QMainWindow):
         self.filename_text.setFixedWidth(200)
         self.col2_layout.addWidget(self.filename_text)
         
+        # add an export filetype combo box
+        self.export_filetype_label = QLabel('Export filetype:')
+        self.export_filetype_combo = QComboBox()
+        self.export_filetype_combo.addItems(['jpg', 'png', 'pdf', 'svg'])
+        # set the default export filetype to jpg
+        self.export_filetype_combo.setCurrentText('jpg')
+        # add the export filetype label and combo box to the layout       
+        self.col2_layout.addWidget(self.export_filetype_label)
+        self.col2_layout.addWidget(self.export_filetype_combo)
+        
         # add a save button
-        self.export_fig_button = QPushButton('Export figure as pdf')
+        self.export_fig_button = QPushButton('Export figure')
         self.export_fig_button.clicked.connect(self.export_fig_button_clicked)
         self.col2_layout.addWidget(self.export_fig_button)
         
@@ -252,21 +264,27 @@ class MainWindow(QMainWindow):
         self.savedir = selected_dir
         # display the save directory on the gui
         self.save_dir_label.setText(f'Save Directory: {self.savedir}')
+        # set font to black
+        self.save_dir_label.setStyleSheet("color: black")
 
     # save the figure as a pdf
     def export_fig_button_clicked(self):
         if not hasattr(self, 'savedir'):
             # display message to choose directory
             self.save_dir_label.setText('Please choose save directory')
+            # set font to red
+            self.save_dir_label.setStyleSheet("color: red")
             return
         if self.filename_text.toPlainText() == '':
-            print('im here')
             str1 = str(self.sub_dir_spinbox.value())
             if self.data_type == '1D':
                 str2 = self.y_axis_combo.currentText()
             else:
                 str2 = self.z_axis_combo.currentText()
-            string = str1 + '_' + str2 + '.pdf'
+            
+            # set the file extension according to the export filetype combo box
+            ftype = self.export_filetype_combo.currentText()
+            string = str1 + '_' + str2 + '.' + ftype
             self.filename_text.setText(string)
         # set ofn to be the save_dir_label + filename
         print(self.filename_text.toPlainText())
@@ -460,4 +478,4 @@ sys.exit(app.exec_())
 
 # Additions
 # 1. plot multiple data sets as multiple lines
-# 2. add a save button and save directory text box
+# 2. if the div channel isn't set to 1, add it to the title
