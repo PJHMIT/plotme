@@ -19,48 +19,65 @@ class MainWindow(QMainWindow):
         # Create a central widget
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
+        # set an minimum width
+        self.setMinimumWidth(800)
+        # name the window
+        self.setWindowTitle('Plotme')
 
-        # Create a vertical layout for the whole window
-        self.layout = QVBoxLayout(self.central_widget)
-
-        # Create a horizontal layout for the top part of the window
-        self.top_layout = QHBoxLayout()
-        self.layout.addLayout(self.top_layout)
+        # Create a horizontal layout for the central widget
+        self.layout = QHBoxLayout()
+        self.central_widget.setLayout(self.layout)
 
         # Create a vertical layout for the directory button, combo box and spin box
-        self.left_col_settings = QVBoxLayout()
-        self.top_layout.addLayout(self.left_col_settings)
-
-        # Create a vertical layout for the time and metadata
-        self.central_col_settings = QVBoxLayout()
-        self.top_layout.addLayout(self.central_col_settings)
+        self.col1_layout = QVBoxLayout()
+        self.layout.addLayout(self.col1_layout)
 
         # Create a vertical layout for the plot settings
-        self.right_col_settings = QVBoxLayout()
-        self.top_layout.addLayout(self.right_col_settings)
+        self.col2_layout = QVBoxLayout()
+        self.layout.addLayout(self.col2_layout)
 
-        # Create a figure and a canvas and add them at the bottom of the window
-        self.fig = plt.figure()
+        # Create a vertical layout for the time and metadata
+        self.col3_layout = QVBoxLayout()
+        self.layout.addLayout(self.col3_layout)
+
+        # Create a new window for the figure
+        self.figure_window = QWidget()
+        self.figure_window.setWindowTitle('Figure Window')
+        # set the minimum width and height of the figure window
+        self.figure_window.setMinimumWidth(800)
+        self.figure_window.setMinimumHeight(600)
+        
+        # Create a layout for the new window
+        self.figure_window_layout = QVBoxLayout()
+        self.figure_window.setLayout(self.figure_window_layout)
+
+        # Show the new window
+        self.figure_window.show()
+
+        # add a canvas and figure to the figure window
+        self.fig = Figure()
         self.ax = self.fig.add_subplot(111)
         self.canvas = FigureCanvas(self.fig)
-        self.layout.addWidget(self.canvas)
+        self.figure_window_layout.addWidget(self.canvas)
+        
 
-        ## populate the left_col_settings
+        
+        ## populate the col1_layout
         # Create a button for choosing the directory
         self.directory_button = QPushButton('Choose parent directory')
         self.directory_button.clicked.connect(self.directory_button_clicked)  # Connect the button click event to the function
-        self.left_col_settings.addWidget(self.directory_button)
+        self.col1_layout.addWidget(self.directory_button)
 
         # create a box to display the directory
         self.dir_label = QLabel('Directory:')
-        self.left_col_settings.addWidget(self.dir_label)
+        self.col1_layout.addWidget(self.dir_label)
         
         # Create a label and a spin box for the directory number
         self.sub_dir_label = QLabel('Sub Dir. Number:')
         self.sub_dir_spinbox = QSpinBox()
         self.sub_dir_spinbox.setRange(1, 10000)  # Set the range of the spin box
-        self.left_col_settings.addWidget(self.sub_dir_label)
-        self.left_col_settings.addWidget(self.sub_dir_spinbox)
+        self.col1_layout.addWidget(self.sub_dir_label)
+        self.col1_layout.addWidget(self.sub_dir_spinbox)
 
         # connect the spin box to the load_meta function
         self.sub_dir_spinbox.valueChanged.connect(self.load_meta)
@@ -68,44 +85,48 @@ class MainWindow(QMainWindow):
         # create a box to choose the x axis column from a list
         self.x_axis_label = QLabel('X Axis:')
         self.x_axis_combo = QComboBox()
-        self.left_col_settings.addWidget(self.x_axis_label)
-        self.left_col_settings.addWidget(self.x_axis_combo)
+        self.col1_layout.addWidget(self.x_axis_label)
+        self.col1_layout.addWidget(self.x_axis_combo)
         
         # create a box to choose the y axis column 
         self.y_axis_label = QLabel('Y Axis:')
         self.y_axis_combo = QComboBox()
-        self.left_col_settings.addWidget(self.y_axis_label)
-        self.left_col_settings.addWidget(self.y_axis_combo)
+        self.col1_layout.addWidget(self.y_axis_label)
+        self.col1_layout.addWidget(self.y_axis_combo)
 
         # create a box to choose the z axis column
         self.z_axis_label = QLabel('Z Axis (only for 2D data):')
         self.z_axis_combo = QComboBox()
-        self.left_col_settings.addWidget(self.z_axis_label)
-        self.left_col_settings.addWidget(self.z_axis_combo)
+        self.col1_layout.addWidget(self.z_axis_label)
+        self.col1_layout.addWidget(self.z_axis_combo)
         
         # create a box to choose the div channel
         self.div_channel_label = QLabel('Div Channel:')
         self.div_channel_combo = QComboBox()
-        self.left_col_settings.addWidget(self.div_channel_label)
-        self.left_col_settings.addWidget(self.div_channel_combo)
+        self.col1_layout.addWidget(self.div_channel_label)
+        self.col1_layout.addWidget(self.div_channel_combo)
 
         # add a plot button
         self.plot_button = QPushButton('Plot')
         self.plot_button.clicked.connect(self.plot_button_clicked)  # Connect the button click event to the function
-        self.left_col_settings.addWidget(self.plot_button)
-        ### end of populate the left_col_settings ###
+        self.col1_layout.addWidget(self.plot_button)
+        # set minimum height of the plot button
+        self.plot_button.setFixedHeight(100)
+        # make the plot botton bold font and 2 point outline, white background
+        self.plot_button.setStyleSheet("font: bold; border: 2px solid black; background-color: white;")
+        ### end of populate the col1_layout ###
 
 
         ### populate the central column layout ###
         # create a frame for the time
         self.time_frame = QFrame()
         self.time_text = QTextEdit(self.time_frame)
-        self.central_col_settings.addWidget(self.time_frame)
+        self.col3_layout.addWidget(self.time_frame)
         
         # Create a frame for the metadata
         self.metadata_frame = QFrame()
         self.metadata_text = QTextEdit(self.metadata_frame)
-        self.central_col_settings.addWidget(self.metadata_frame)
+        self.col3_layout.addWidget(self.metadata_frame)
         ### end of populate the central column layout ###
 
         ### populate the right column layout ###
@@ -123,21 +144,21 @@ class MainWindow(QMainWindow):
         log_layout.addWidget(self.logz_checkbox)
 
         # Add the log layout to the right column layout
-        self.right_col_settings.addLayout(log_layout)
+        self.col2_layout.addLayout(log_layout)
 
         # Create a horizontal layout for clim
         # self.clim_layout = QHBoxLayout()
-        # self.right_col_settings.addLayout(self.clim_layout)
+        # self.col2_layout.addLayout(self.clim_layout)
 
         # Create a checkbox for auto clim
         self.auto_clim_checkbox = QCheckBox("Auto clim")
-        self.right_col_settings.addWidget(self.auto_clim_checkbox)
+        self.col2_layout.addWidget(self.auto_clim_checkbox)
         # check auto clim by default
         self.auto_clim_checkbox.setChecked(True)
 
         # create a vertical layout for clim min and clim max
         self.clim_min_max_layout = QVBoxLayout()
-        self.right_col_settings.addLayout(self.clim_min_max_layout)
+        self.col2_layout.addLayout(self.clim_min_max_layout)
 
         # Create a horizontal layout for clim min
         # self.clim_min_layout = QHBoxLayout()
@@ -145,8 +166,8 @@ class MainWindow(QMainWindow):
         self.clim_min_text = QTextEdit()
         self.clim_min_text.setFixedHeight(35)
         self.clim_min_text.setFixedWidth(200)
-        self.right_col_settings.addWidget(self.clim_min_label)
-        self.right_col_settings.addWidget(self.clim_min_text) ## BRING THIS LINE BACK
+        self.col2_layout.addWidget(self.clim_min_label)
+        self.col2_layout.addWidget(self.clim_min_text) ## BRING THIS LINE BACK
         # self.clim_min_max_layout.addLayout(self.clim_min_layout)
 
         # Create a horizontal layout for clim max
@@ -155,55 +176,55 @@ class MainWindow(QMainWindow):
         self.clim_max_text = QTextEdit()
         self.clim_max_text.setFixedHeight(35)
         self.clim_max_text.setFixedWidth(200)
-        self.right_col_settings.addWidget(self.clim_max_label)
-        self.right_col_settings.addWidget(self.clim_max_text)
+        self.col2_layout.addWidget(self.clim_max_label)
+        self.col2_layout.addWidget(self.clim_max_text)
         # self.clim_min_max_layout.addLayout(self.clim_max_layout)
 
         # create a button for multiple lines on off
         self.waterfall_checkbox = QCheckBox("Waterfall")
-        self.right_col_settings.addWidget(self.waterfall_checkbox)
+        self.col2_layout.addWidget(self.waterfall_checkbox)
 
         # create a button for grid on off
         self.grid_checkbox = QCheckBox("Grid")
-        self.right_col_settings.addWidget(self.grid_checkbox)
+        self.col2_layout.addWidget(self.grid_checkbox)
 
         # create a list of colormaps
         self.colormap_label = QLabel('Colormap:')
         self.colormap_combo = QComboBox()
         self.colormap_combo.addItems(['viridis', 'seismic', 'inferno', 'plasma', 'magma', 'cividis', 'Spectral', 'Spectral_r', 'seismic_r'])
-        self.right_col_settings.addWidget(self.colormap_label)
-        self.right_col_settings.addWidget(self.colormap_combo)
+        self.col2_layout.addWidget(self.colormap_label)
+        self.col2_layout.addWidget(self.colormap_combo)
 
         ### end of populate the plot settings layout ###
 
         # add a button to choose a save directory
         self.save_dir_button = QPushButton('Choose save directory')
         self.save_dir_button.clicked.connect(self.save_directory_button_clicked)
-        self.right_col_settings.addWidget(self.save_dir_button)
+        self.col2_layout.addWidget(self.save_dir_button)
 
         # add a save directory label
         self.save_dir_label = QLabel('Save Directory:')
-        self.right_col_settings.addWidget(self.save_dir_label)
+        self.col2_layout.addWidget(self.save_dir_label)
 
         # add a filename label
         self.filename_label = QLabel('Export filename:')
-        self.right_col_settings.addWidget(self.filename_label)
+        self.col2_layout.addWidget(self.filename_label)
         
         # add a filename text box
         self.filename_text = QTextEdit()
         self.filename_text.setFixedHeight(35)
         self.filename_text.setFixedWidth(200)
-        self.right_col_settings.addWidget(self.filename_text)
+        self.col2_layout.addWidget(self.filename_text)
         
         # add a save button
         self.export_fig_button = QPushButton('Export figure as pdf')
         self.export_fig_button.clicked.connect(self.export_fig_button_clicked)
-        self.right_col_settings.addWidget(self.export_fig_button)
+        self.col2_layout.addWidget(self.export_fig_button)
         
         # Set the layout of the central widget
         self.central_widget.setLayout(self.layout)
 
-        
+              
 
 
     # if colormap_combo is clicked, set the colormap
@@ -212,15 +233,23 @@ class MainWindow(QMainWindow):
 
 
     def directory_button_clicked(self):
-        self.datadir = QFileDialog.getExistingDirectory(self, 'Select Directory')  # Open a dialog to choose the directory
-        self.sub_dir = self.sub_dir_spinbox.value()  # Get the value of the spin box
+        selected_dir = QFileDialog.getExistingDirectory(self, 'Select Directory')  # Open a dialog to choose the directory
+        # if no directory was seleced, return
+        if selected_dir == '':
+            return
+        self.datadir = selected_dir  # Set the datadir to the selected directory
         # display the directory on the gui
         self.dir_label.setText(f'Directory: {self.datadir}')
+        # set font to black
+        self.dir_label.setStyleSheet("color: black")
         # when the choose dir button is clicked, load the metadata
         self.load_meta()
 
     def save_directory_button_clicked(self):
-        self.savedir = QFileDialog.getExistingDirectory(self, 'Select Directory')
+        selected_dir = QFileDialog.getExistingDirectory(self, 'Select Directory')
+        if selected_dir == '':
+            return
+        self.savedir = selected_dir
         # display the save directory on the gui
         self.save_dir_label.setText(f'Save Directory: {self.savedir}')
 
@@ -298,8 +327,18 @@ class MainWindow(QMainWindow):
 
     # if plot_button is clicked, plot the data
     def plot_button_clicked(self):
+        # if the directory is not set, return
+        if not hasattr(self, 'datadir'):
+            # display message to choose directory
+            self.dir_label.setText('Please choose parent directory')
+            # set font to red
+            self.dir_label.setStyleSheet("color: red")
+            return
         self.sub_dir = self.sub_dir_spinbox.value()
         self.plot_data(self.datadir, self.sub_dir)
+        # try to bring the figure window to the front. This depends on the OS
+        self.figure_window.raise_()
+        self.figure_window.activateWindow()
 
     # plot the data
     def plot_data(self, datadir, sub_dir):
@@ -322,6 +361,12 @@ class MainWindow(QMainWindow):
         # get the plot settings from the buttons
         clim_min = self.clim_min_text.toPlainText()
         clim_max = self.clim_max_text.toPlainText()
+        # convert the clim min and max to floats
+        try:
+            clim_min = float(clim_min)
+            clim_max = float(clim_max)
+        except:
+            pass
         colormap = self.colormap_combo.currentText()
         
         # Redraw the plots
@@ -339,14 +384,14 @@ class MainWindow(QMainWindow):
                 return
             
             if logz == True:
-                # make sure clim_min and clim_max are numbers
-                if auto_clim == False and not (clim_min.replace('.', '', 1).isdigit() and clim_max.replace('.', '', 1).isdigit()):
+                # make sure clim_min and clim_max are floats
+                if auto_clim == False and isinstance(clim_min, float) and isinstance(clim_max, float):
                     norm = matplotlib.colors.LogNorm(vmin=clim_min, vmax=clim_max)    
                 else:
                     norm = matplotlib.colors.LogNorm()
                 props = dict(rasterized=True, cmap=colormap, norm=norm) 
             else:
-                if auto_clim == False and not (clim_min.replace('.', '', 1).isdigit() and clim_max.replace('.', '', 1).isdigit()):
+                if auto_clim == False and isinstance(clim_min, float) and isinstance(clim_max, float):
                     props = dict(rasterized=True, vmin=clim_min,vmax=clim_max, cmap=colormap) 
                 else:
                     props = dict(rasterized=True, cmap=colormap) 
@@ -383,6 +428,11 @@ class MainWindow(QMainWindow):
             self.ax.set_xlabel(x_axis)
             self.ax.set_ylabel(y_axis)
             self.ax.set_title(y_axis)
+            # if clim not set to auto, set the ylimits according to clim_min and clim_max
+            if auto_clim == False:
+                self.ax.set_ylim(clim_min, clim_max)
+                            
+
 
         # set the logx, logy, logz settings
         if logx == True:
