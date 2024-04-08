@@ -1,4 +1,5 @@
 import sys
+import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QHBoxLayout, QVBoxLayout, QPushButton, QWidget, QFileDialog, QSpinBox, QLabel, QComboBox, QFrame, QTextEdit, QRadioButton, QCheckBox
 import datetime
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -70,48 +71,75 @@ class MainWindow(QMainWindow):
 
         
         ## populate col1_layout
+        # create a vertical box for the directory button and label
+        self.directory_layout = QVBoxLayout()
+        self.col1_layout.addLayout(self.directory_layout)
+        
         # Create a button for choosing the directory
         self.directory_button = QPushButton('Choose parent directory')
         self.directory_button.clicked.connect(self.directory_button_clicked)  # Connect the button click event to the function
-        self.col1_layout.addWidget(self.directory_button)
+        self.directory_layout.addWidget(self.directory_button)
 
         # create a box to display the directory
         self.dir_label = QLabel('Directory:')
-        self.col1_layout.addWidget(self.dir_label)
+        self.directory_layout.addWidget(self.dir_label)
+        # wrap the text in the dir_label
+        self.dir_label.setWordWrap(True)
         
+        # create a box to host the sub dir label and spin box
+        self.sub_dir_layout = QHBoxLayout()
+        self.directory_layout.addLayout(self.sub_dir_layout)
+
         # Create a label and a spin box for the directory number
         self.sub_dir_label = QLabel('Sub Dir. Number:')
         self.sub_dir_spinbox = QSpinBox()
         self.sub_dir_spinbox.setRange(1, 10000)  # Set the range of the spin box
-        self.col1_layout.addWidget(self.sub_dir_label)
-        self.col1_layout.addWidget(self.sub_dir_spinbox)
+        self.sub_dir_layout.addWidget(self.sub_dir_label)
+        self.sub_dir_layout.addWidget(self.sub_dir_spinbox)
 
         # connect the spin box to the load_meta function
         self.sub_dir_spinbox.valueChanged.connect(self.load_meta)
 
+        # crate a box to host the x axis, y axis, z axis, and div channel combo boxes
+        self.axis_layout = QVBoxLayout()
+        self.col1_layout.addLayout(self.axis_layout)
+
+        # create a horizontal layout for the x axis combo box
+        self.x_axis_layout = QHBoxLayout()
+        self.axis_layout.addLayout(self.x_axis_layout)
+        # create a horizontal layout for the y axis combo box
+        self.y_axis_layout = QHBoxLayout()
+        self.axis_layout.addLayout(self.y_axis_layout)
+        # create a horizontal layout for the z axis combo box
+        self.z_axis_layout = QHBoxLayout()
+        self.axis_layout.addLayout(self.z_axis_layout)
+        # create a horizontal layout for the div channel combo box
+        self.div_channel_layout = QHBoxLayout()
+        self.axis_layout.addLayout(self.div_channel_layout)
+        
         # create a box to choose the x axis column from a list
         self.x_axis_label = QLabel('X Axis:')
         self.x_axis_combo = QComboBox()
-        self.col1_layout.addWidget(self.x_axis_label)
-        self.col1_layout.addWidget(self.x_axis_combo)
+        self.x_axis_layout.addWidget(self.x_axis_label)
+        self.x_axis_layout.addWidget(self.x_axis_combo)
         
         # create a box to choose the y axis column 
         self.y_axis_label = QLabel('Y Axis:')
         self.y_axis_combo = QComboBox()
-        self.col1_layout.addWidget(self.y_axis_label)
-        self.col1_layout.addWidget(self.y_axis_combo)
+        self.y_axis_layout.addWidget(self.y_axis_label)
+        self.y_axis_layout.addWidget(self.y_axis_combo)
 
         # create a box to choose the z axis column
-        self.z_axis_label = QLabel('Z Axis (only for 2D data):')
+        self.z_axis_label = QLabel('Z Axis (2D data only):')
         self.z_axis_combo = QComboBox()
-        self.col1_layout.addWidget(self.z_axis_label)
-        self.col1_layout.addWidget(self.z_axis_combo)
+        self.z_axis_layout.addWidget(self.z_axis_label)
+        self.z_axis_layout.addWidget(self.z_axis_combo)
         
         # create a box to choose the div channel
         self.div_channel_label = QLabel('Div Channel:')
         self.div_channel_combo = QComboBox()
-        self.col1_layout.addWidget(self.div_channel_label)
-        self.col1_layout.addWidget(self.div_channel_combo)
+        self.div_channel_layout.addWidget(self.div_channel_label)
+        self.div_channel_layout.addWidget(self.div_channel_combo)
 
         # add a plot button
         self.plot_button = QPushButton('Plot')
@@ -183,28 +211,16 @@ class MainWindow(QMainWindow):
         self.grid_checkbox = QCheckBox("Grid")
         self.col2_layout.addWidget(self.grid_checkbox)
 
+        # create a colormap horizontal layout
+        self.colormap_layout = QHBoxLayout()
+        self.col2_layout.addLayout(self.colormap_layout)
+
         # create a list of colormaps
         self.colormap_label = QLabel('Colormap:')
         self.colormap_combo = QComboBox()
         self.colormap_combo.addItems(['viridis', 'seismic', 'inferno', 'plasma', 'magma', 'cividis', 'Spectral', 'Spectral_r', 'seismic_r'])
-        self.col2_layout.addWidget(self.colormap_label)
-        self.col2_layout.addWidget(self.colormap_combo)
-        ### end of populate column 2 layout ###
-
-
-        ### populate column 3 layout ###
-        # create a frame for the time
-        self.time_frame = QFrame()
-        self.time_text = QTextEdit(self.time_frame)
-        self.col3_layout.addWidget(self.time_frame)
-        # set the height of the time frame
-        self.time_frame.setFixedHeight(50)
-        
-        # Create a frame for the metadata
-        self.metadata_frame = QFrame()
-        self.metadata_text = QTextEdit(self.metadata_frame)
-        self.col3_layout.addWidget(self.metadata_frame)
-        ### end of populate column 3 layout ###
+        self.colormap_layout.addWidget(self.colormap_label)
+        self.colormap_layout.addWidget(self.colormap_combo)
 
         # add a button to choose a save directory
         self.save_dir_button = QPushButton('Choose save directory')
@@ -225,6 +241,10 @@ class MainWindow(QMainWindow):
         self.filename_text.setFixedWidth(200)
         self.col2_layout.addWidget(self.filename_text)
         
+        # create an export filetype horizontal layout
+        self.export_filetype_layout = QHBoxLayout()
+        self.col2_layout.addLayout(self.export_filetype_layout)
+
         # add an export filetype combo box
         self.export_filetype_label = QLabel('Export filetype:')
         self.export_filetype_combo = QComboBox()
@@ -232,14 +252,45 @@ class MainWindow(QMainWindow):
         # set the default export filetype to jpg
         self.export_filetype_combo.setCurrentText('jpg')
         # add the export filetype label and combo box to the layout       
-        self.col2_layout.addWidget(self.export_filetype_label)
-        self.col2_layout.addWidget(self.export_filetype_combo)
+        self.export_filetype_layout.addWidget(self.export_filetype_label)
+        self.export_filetype_layout.addWidget(self.export_filetype_combo)
         
         # add a save button
         self.export_fig_button = QPushButton('Export figure')
         self.export_fig_button.clicked.connect(self.export_fig_button_clicked)
         self.col2_layout.addWidget(self.export_fig_button)
+        ### end of populate column 2 layout ###
+
+
+        ### populate column 3 layout ###
+        # create a frame for the time
+        self.time_frame = QFrame()
+        self.time_text = QTextEdit(self.time_frame)
+        self.col3_layout.addWidget(self.time_frame)
+        # set the height of the time frame
+        self.time_frame.setFixedHeight(50)
         
+        # Create a frame for the metadata
+        self.metadata_frame = QFrame()
+        self.metadata_text = QTextEdit(self.metadata_frame)
+        self.col3_layout.addWidget(self.metadata_frame)
+
+        # create a frame for the measurement config
+        self.measurement_config_frame = QFrame()
+        self.measurement_config_text = QTextEdit(self.measurement_config_frame)
+        self.col3_layout.addWidget(self.measurement_config_frame)
+        
+        # create a frame for the slow_setpoints
+        self.slow_setpoints_frame = QFrame()
+        self.slow_setpoints_text = QTextEdit(self.slow_setpoints_frame)
+        self.col3_layout.addWidget(self.slow_setpoints_frame)
+
+        # create a frame for the fast_setpoints
+        self.fast_setpoints_frame = QFrame()
+        self.fast_setpoints_text = QTextEdit(self.fast_setpoints_frame)
+        self.col3_layout.addWidget(self.fast_setpoints_frame)
+        ### end of populate column 3 layout ###
+
         # Set the layout of the central widget
         self.central_widget.setLayout(self.layout)
 
@@ -327,12 +378,29 @@ class MainWindow(QMainWindow):
         self.time_text.setText(f'start_time: {start_time}')
         self.time_text.append(f'end_time: {end_time}')
 
-        # display the metadata on the gui, separated by newlines. don't display the setpoints, columns, start_time, or end_time
-        self.metadata_text.setText('\n'.join([f'{k}: {v}' for k, v in data.items() if k not in ['setpoints', 'columns', 'start_time', 'end_time']]))
-
+        # display the metadata on the gui, separated by newlines
+        self.metadata_text.setText('\n'.join([f'{k}: {v}' for k, v in data.items() if k in ['comments', 'type', 'function', 'slow_delay', 'fast_delay','slow_param','fast_param']]))
         # set data_type to 1D or 2D according to the metadata type field
         self.data_type = data['type']
 
+        # parse the measurement_config field of the metadata
+        if 'measurement_config' in data:
+            self.measurement_config = data['measurement_config']
+            self.measurement_config_text.setText('\n'.join([f'{k}: {v}' for k, v in self.measurement_config.items()]))
+            # print(self.measurement_config)
+            # value = self.measurement_config['SR860_A']
+            # print(value)  # Outputs: '6-20'
+        
+        # parse the slow_setpoints field of the metadata
+        if 'slow_setpoints' in data:
+            self.slow_setpoints = data['slow_setpoints']
+            self.slow_setpoints_text.setText('\n'.join(map(str, self.slow_setpoints)))
+
+        # parse the fast_setpoints field of the metadata
+        if 'fast_setpoints' in data:
+            self.fast_setpoints = data['fast_setpoints']
+            self.fast_setpoints_text.setText('\n'.join(map(str, self.fast_setpoints)))
+        
         # set the columns to the columns field of the metadata
         self.columns = data['columns']
 
@@ -348,48 +416,24 @@ class MainWindow(QMainWindow):
             # set the x axis to be the slow axis from the metadata
             # find the string 'slow_param' in the meta_text and set the x axis to be the following string
             if 'slow_param: ' in meta_text:
-                # find the index of 'slow_param' in the metadata text
-                ind1 = meta_text.index('slow_param:')
-                # find the index of the next \n after 'slow_param: '
-                ind2 = meta_text.index('\n', ind1)
-                # get the string between 'slow_param: ' and the next \n
-                slow_param_string = meta_text[ind1 + len('slow_param: '):ind2]
-                # if slow_param_string has ' in it, keep only the string between the first 's
-                if "'" in slow_param_string:
-                    slow_param_string = slow_param_string[slow_param_string.index("'") + 1:slow_param_string.rindex("'")]
+                # fine the corresponding dict value
+                slow_param = data['slow_param']
                 # set the x axis to be the slow axis from the metadata
-                self.x_axis_combo.setCurrentText(slow_param_string)
+                self.x_axis_combo.setCurrentText(slow_param)
             if 'fast_param: ' in meta_text:
-                # find the index of 'fast_param' in the metadata text
-                ind1 = meta_text.index('fast_param:')
-                # find the index of the next \n after 'fast_param: '
-                ind2 = meta_text.index('\n', ind1)
-                # get the string between 'fast_param: ' and the next \n
-                fast_param_string = meta_text[ind1 + len('fast_param: '):ind2]
-                # if fast_param_string has ' in it, keep only the string between the first 's
-                print(fast_param_string)
-                if "'" in fast_param_string:
-                    ind1 = fast_param_string.index("'")
-                    # find the next time ' appears in the string
-                    ind2 = fast_param_string[ind1 + 1:].index("'")
-                    print(ind1, ind2)
-                    fast_param_string = fast_param_string[ind1 + 1:ind1 + 1 + ind2]
-                    print(fast_param_string)
+                # fine the corresponding dict value
+                fast_param = data['fast_param']
                 # set the y axis to be the fast axis from the metadata
-                self.y_axis_combo.setCurrentText(fast_param_string)
+                self.y_axis_combo.setCurrentText(fast_param)
         else:
             self.z_axis_combo.clear()
             # set the x axis to be the slow axis from the metadata
             # find the string 'param' in the columns and set the x axis to be the following string
             if 'param: ' in meta_text:
-                # find the index of 'param' in the metadata text
-                ind1 = meta_text.index('param:')
-                # find the index of the next \n after 'param: '
-                ind2 = meta_text.index('\n', ind1)
-                # get the string between 'param: ' and the next \n
-                param_string = meta_text[ind1 + len('param: '):ind2]
-                # set the x axis to be the slow axis from the metadata
-                self.x_axis_combo.setCurrentText(param_string)
+                # fine the corresponding dict value
+                param = data['param']
+                # set the x axis to be the param from the metadata
+                self.x_axis_combo.setCurrentText(param)
         self.div_channel_combo.clear()
         self.div_channel_combo.addItems(['1'])
         self.div_channel_combo.addItems(self.columns)
@@ -408,7 +452,7 @@ class MainWindow(QMainWindow):
         # try to bring the figure window to the front. This depends on the OS
         self.figure_window.raise_()
         self.figure_window.activateWindow()
-
+        
     # plot the data
     def plot_data(self, datadir, sub_dir):
         if self.data_type == '1D':
@@ -455,9 +499,9 @@ class MainWindow(QMainWindow):
             if logz == True:
                 # make sure clim_min and clim_max are floats
                 if auto_clim == False and isinstance(clim_min, float) and isinstance(clim_max, float):
-                    norm = matplotlib.colors.LogNorm(vmin=clim_min, vmax=clim_max)    
+                    norm = matplotlib.colors.SymLogNorm(vmin=clim_min, vmax=clim_max)    
                 else:
-                    norm = matplotlib.colors.LogNorm()
+                    norm = matplotlib.colors.SymLogNorm()
                 props = dict(rasterized=True, cmap=colormap, norm=norm) 
             else:
                 if auto_clim == False and isinstance(clim_min, float) and isinstance(clim_max, float):
