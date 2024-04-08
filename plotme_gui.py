@@ -17,7 +17,7 @@ from PyQt5 import QtWidgets
 # To do:
 # 1. plot multiple data sets as multiple lines
 # 2. if the div channel isn't set to 1, add it to the title
-# 3. fix plotting of multimegasweep (e.g. HM01-BF\data_07\22)
+
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
