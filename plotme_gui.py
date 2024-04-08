@@ -11,6 +11,10 @@ import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
+# To do:
+# 1. plot multiple data sets as multiple lines
+# 2. if the div channel isn't set to 1, add it to the title
+# 3. fix plotting of multimegasweep (e.g. HM01-BF\data_07\22)
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -53,16 +57,19 @@ class MainWindow(QMainWindow):
 
         # Show the new window
         self.figure_window.show()
-
+        
         # add a canvas and figure to the figure window
         self.fig = Figure()
         self.ax = self.fig.add_subplot(111)
         self.canvas = FigureCanvas(self.fig)
         self.figure_window_layout.addWidget(self.canvas)
         
+        # place the figure window to the right of the main window
+        self.figure_window.move(self.x() + self.width(), self.y())
+
 
         
-        ## populate the col1_layout
+        ## populate col1_layout
         # Create a button for choosing the directory
         self.directory_button = QPushButton('Choose parent directory')
         self.directory_button.clicked.connect(self.directory_button_clicked)  # Connect the button click event to the function
@@ -116,20 +123,6 @@ class MainWindow(QMainWindow):
         self.plot_button.setStyleSheet("font: bold 18px; color: black; background-color: white; border: 2px solid black;")
         ### end of populate the col1_layout ###
 
-
-        ### populate the 3rd column layout ###
-        # create a frame for the time
-        self.time_frame = QFrame()
-        self.time_text = QTextEdit(self.time_frame)
-        self.col3_layout.addWidget(self.time_frame)
-        # set the height of the time frame
-        self.time_frame.setFixedHeight(50)
-        
-        # Create a frame for the metadata
-        self.metadata_frame = QFrame()
-        self.metadata_text = QTextEdit(self.metadata_frame)
-        self.col3_layout.addWidget(self.metadata_frame)
-        ### end of populate the central column layout ###
 
         ### populate the right column layout ###
         # Create a vertical layout
@@ -196,8 +189,22 @@ class MainWindow(QMainWindow):
         self.colormap_combo.addItems(['viridis', 'seismic', 'inferno', 'plasma', 'magma', 'cividis', 'Spectral', 'Spectral_r', 'seismic_r'])
         self.col2_layout.addWidget(self.colormap_label)
         self.col2_layout.addWidget(self.colormap_combo)
+        ### end of populate column 2 layout ###
 
-        ### end of populate the plot settings layout ###
+
+        ### populate column 3 layout ###
+        # create a frame for the time
+        self.time_frame = QFrame()
+        self.time_text = QTextEdit(self.time_frame)
+        self.col3_layout.addWidget(self.time_frame)
+        # set the height of the time frame
+        self.time_frame.setFixedHeight(50)
+        
+        # Create a frame for the metadata
+        self.metadata_frame = QFrame()
+        self.metadata_text = QTextEdit(self.metadata_frame)
+        self.col3_layout.addWidget(self.metadata_frame)
+        ### end of populate column 3 layout ###
 
         # add a button to choose a save directory
         self.save_dir_button = QPushButton('Choose save directory')
@@ -334,11 +341,55 @@ class MainWindow(QMainWindow):
         self.x_axis_combo.addItems(self.columns)
         self.y_axis_combo.clear()
         self.y_axis_combo.addItems(self.columns)
+        meta_text = self.metadata_text.toPlainText()
         if self.data_type == '2D':
             self.z_axis_combo.clear()
             self.z_axis_combo.addItems(self.columns)
+            # set the x axis to be the slow axis from the metadata
+            # find the string 'slow_param' in the meta_text and set the x axis to be the following string
+            if 'slow_param: ' in meta_text:
+                # find the index of 'slow_param' in the metadata text
+                ind1 = meta_text.index('slow_param:')
+                # find the index of the next \n after 'slow_param: '
+                ind2 = meta_text.index('\n', ind1)
+                # get the string between 'slow_param: ' and the next \n
+                slow_param_string = meta_text[ind1 + len('slow_param: '):ind2]
+                # if slow_param_string has ' in it, keep only the string between the first 's
+                if "'" in slow_param_string:
+                    slow_param_string = slow_param_string[slow_param_string.index("'") + 1:slow_param_string.rindex("'")]
+                # set the x axis to be the slow axis from the metadata
+                self.x_axis_combo.setCurrentText(slow_param_string)
+            if 'fast_param: ' in meta_text:
+                # find the index of 'fast_param' in the metadata text
+                ind1 = meta_text.index('fast_param:')
+                # find the index of the next \n after 'fast_param: '
+                ind2 = meta_text.index('\n', ind1)
+                # get the string between 'fast_param: ' and the next \n
+                fast_param_string = meta_text[ind1 + len('fast_param: '):ind2]
+                # if fast_param_string has ' in it, keep only the string between the first 's
+                print(fast_param_string)
+                if "'" in fast_param_string:
+                    ind1 = fast_param_string.index("'")
+                    # find the next time ' appears in the string
+                    ind2 = fast_param_string[ind1 + 1:].index("'")
+                    print(ind1, ind2)
+                    fast_param_string = fast_param_string[ind1 + 1:ind1 + 1 + ind2]
+                    print(fast_param_string)
+                # set the y axis to be the fast axis from the metadata
+                self.y_axis_combo.setCurrentText(fast_param_string)
         else:
             self.z_axis_combo.clear()
+            # set the x axis to be the slow axis from the metadata
+            # find the string 'param' in the columns and set the x axis to be the following string
+            if 'param: ' in meta_text:
+                # find the index of 'param' in the metadata text
+                ind1 = meta_text.index('param:')
+                # find the index of the next \n after 'param: '
+                ind2 = meta_text.index('\n', ind1)
+                # get the string between 'param: ' and the next \n
+                param_string = meta_text[ind1 + len('param: '):ind2]
+                # set the x axis to be the slow axis from the metadata
+                self.x_axis_combo.setCurrentText(param_string)
         self.div_channel_combo.clear()
         self.div_channel_combo.addItems(['1'])
         self.div_channel_combo.addItems(self.columns)
@@ -475,7 +526,3 @@ main.show()
 sys.exit(app.exec_())
 
 
-
-# Additions
-# 1. plot multiple data sets as multiple lines
-# 2. if the div channel isn't set to 1, add it to the title
