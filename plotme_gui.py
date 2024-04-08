@@ -10,7 +10,9 @@ sys.path.append('C:\Pythoncode\loadme\sweep_load')  # Replace with the actual di
 import sweep_load as sl
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from PyQt5 import QtWidgets
 
 # To do:
 # 1. plot multiple data sets as multiple lines
@@ -59,17 +61,21 @@ class MainWindow(QMainWindow):
         # Show the new window
         self.figure_window.show()
         
-        # add a canvas and figure to the figure window
+        # add a figure and canvas to the figure window
         self.fig = Figure()
         self.ax = self.fig.add_subplot(111)
         self.canvas = FigureCanvas(self.fig)
-        self.figure_window_layout.addWidget(self.canvas)
-        
-        # place the figure window to the right of the main window
-        self.figure_window.move(self.x() + self.width(), self.y())
+        self.toolbar = NavigationToolbar(self.canvas, self)
 
+        # Create a container widget for the toolbar and canvas
+        toolbar_canvas_widget = QtWidgets.QWidget()
+        toolbar_canvas_layout = QtWidgets.QVBoxLayout(toolbar_canvas_widget)
+        toolbar_canvas_layout.addWidget(self.toolbar)
+        toolbar_canvas_layout.addWidget(self.canvas)
 
-        
+        # Add the container widget to the layout of the figure window
+        self.figure_window.layout().addWidget(toolbar_canvas_widget)
+
         ## populate col1_layout
         # create a vertical box for the directory button and label
         self.directory_layout = QVBoxLayout()
@@ -284,11 +290,15 @@ class MainWindow(QMainWindow):
         self.slow_setpoints_frame = QFrame()
         self.slow_setpoints_text = QTextEdit(self.slow_setpoints_frame)
         self.col3_layout.addWidget(self.slow_setpoints_frame)
+        # set the height of the slow_setpoints frame
+        self.slow_setpoints_frame.setFixedHeight(50)
 
         # create a frame for the fast_setpoints
         self.fast_setpoints_frame = QFrame()
         self.fast_setpoints_text = QTextEdit(self.fast_setpoints_frame)
         self.col3_layout.addWidget(self.fast_setpoints_frame)
+        # set the height of the fast_setpoints frame
+        self.fast_setpoints_frame.setFixedHeight(50)
         ### end of populate column 3 layout ###
 
         # Set the layout of the central widget
@@ -379,7 +389,7 @@ class MainWindow(QMainWindow):
         self.time_text.append(f'end_time: {end_time}')
 
         # display the metadata on the gui, separated by newlines
-        self.metadata_text.setText('\n'.join([f'{k}: {v}' for k, v in data.items() if k in ['comments', 'type', 'function', 'slow_delay', 'fast_delay','slow_param','fast_param']]))
+        self.metadata_text.setText('\n'.join([f'{k}: {v}' for k, v in data.items() if k in ['comments', 'type', 'function', 'slow_delay', 'fast_delay','slow_param','fast_param','param']]))
         # set data_type to 1D or 2D according to the metadata type field
         self.data_type = data['type']
 
@@ -391,6 +401,11 @@ class MainWindow(QMainWindow):
             # value = self.measurement_config['SR860_A']
             # print(value)  # Outputs: '6-20'
         
+        # parse the setpoints field of the metadata
+        if 'setpoints' in data:
+            self.setpoints = data['setpoints']
+            self.slow_setpoints_text.setText('\n'.join(map(str, self.setpoints)))
+
         # parse the slow_setpoints field of the metadata
         if 'slow_setpoints' in data:
             self.slow_setpoints = data['slow_setpoints']
@@ -452,6 +467,7 @@ class MainWindow(QMainWindow):
         # try to bring the figure window to the front. This depends on the OS
         self.figure_window.raise_()
         self.figure_window.activateWindow()
+        
         
     # plot the data
     def plot_data(self, datadir, sub_dir):
