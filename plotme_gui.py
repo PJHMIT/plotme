@@ -17,7 +17,7 @@ from PyQt5 import QtWidgets
 # To do:
 # 1. plot multiple data sets as multiple lines
 # 2. if the div channel isn't set to 1, add it to the title
-
+# test
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
