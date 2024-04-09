@@ -528,7 +528,6 @@ class MainWindow(QMainWindow):
             self.ax.set_ylabel(y_axis)
             # define the title of the plot to be the the directory\sub dir, new line, z axis
             self.ax.set_title(f'{datadir}/{sub_dir}\n{z_axis}')
-
             # set grid
             if grid == True:
                 self.ax.grid()
@@ -551,7 +550,7 @@ class MainWindow(QMainWindow):
                 self.ax.plot(data[x_axis], data[y_axis]/data[div_channel], '.')
             self.ax.set_xlabel(x_axis)
             self.ax.set_ylabel(y_axis)
-            self.ax.set_title(y_axis)
+            self.ax.set_title(f'{datadir}/{sub_dir}\n{y_axis}')
             # if clim not set to auto, set the ylimits according to clim_min and clim_max
             if auto_clim == False:
                 self.ax.set_ylim(clim_min, clim_max)
