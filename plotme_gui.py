@@ -6,7 +6,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import matplotlib.colors
-sys.path.append('C:\Pythoncode\loadme\sweep_load')  # Replace with the actual directory path
+sys.path.append('C:\Pythoncode\measureme\sweep')  # Replace with the actual directory path
 import sweep_load as sl
 import numpy as np
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -233,7 +233,7 @@ class MainWindow(QMainWindow):
         # add a filename text box
         self.filename_text = QTextEdit()
         self.filename_text.setFixedHeight(35)
-        self.filename_text.setFixedWidth(200)
+        self.filename_text.setFixedWidth(250)
         self.col2_layout.addWidget(self.filename_text)
         
         # create an export filetype horizontal layout
@@ -275,20 +275,32 @@ class MainWindow(QMainWindow):
         self.measurement_config_text = QTextEdit(self.measurement_config_frame)
         self.col3_layout.addWidget(self.measurement_config_frame)
         
+        # add a slow param label
+        self.slow_param_label = QLabel('')
+        self.col3_layout.addWidget(self.slow_param_label)
+        # set height of the slow_param label
+        self.slow_param_label.setFixedHeight(35)
+
         # create a frame for the slow_setpoints
         self.slow_setpoints_frame = QFrame()
         self.slow_setpoints_text = QTextEdit(self.slow_setpoints_frame)
         self.col3_layout.addWidget(self.slow_setpoints_frame)
-        # set the height of the slow_setpoints frame
+        # set the height of the fast_setpoints frame
         self.slow_setpoints_frame.setFixedHeight(100)
+        ### end of populate column 3 layout ###
+
+        # add a fast param label
+        self.fast_param_label = QLabel('')
+        self.col3_layout.addWidget(self.fast_param_label)
+        # set height of the fast_param label
+        self.fast_param_label.setFixedHeight(35)
 
         # create a frame for the fast_setpoints
         self.fast_setpoints_frame = QFrame()
         self.fast_setpoints_text = QTextEdit(self.fast_setpoints_frame)
         self.col3_layout.addWidget(self.fast_setpoints_frame)
-        # set the height of the fast_setpoints frame
+        # set the height of the slow_setpoints frame
         self.fast_setpoints_frame.setFixedHeight(100)
-        ### end of populate column 3 layout ###
 
         # Set the layout of the central widget
         self.central_widget.setLayout(self.layout)
@@ -378,7 +390,7 @@ class MainWindow(QMainWindow):
         self.time_text.append(f'end_time: {end_time}')
 
         # display the metadata on the gui, separated by newlines
-        self.metadata_text.setText('\n'.join([f'{k}: {v}' for k, v in data.items() if k in ['comments', 'type', 'function', 'slow_delay', 'fast_delay','slow_param','fast_param','param']]))
+        self.metadata_text.setText('\n'.join([f'{k}: {v}' for k, v in data.items() if k in ['comments', 'type', 'function', 'slow_delay', 'fast_delay']]))
         # set data_type to 1D or 2D according to the metadata type field
         self.data_type = data['type']
 
@@ -390,20 +402,31 @@ class MainWindow(QMainWindow):
             # value = self.measurement_config['SR860_A']
             # print(value)  # Outputs: '6-20'
         
-        # parse the setpoints field of the metadata
-        if 'setpoints' in data:
-            self.setpoints = data['setpoints']
-            self.slow_setpoints_text.setText('\n'.join(map(str, self.setpoints)))
+        # add text slow_param label
+        if 'slow_param' in data:
+            self.slow_param_label.setText(f'slow_param: {data["slow_param"]}')
+        elif 'param' in data:
+            self.slow_param_label.setText(f'param: {data["param"]}')
+            self.fast_param_label.setText(f'')
+
+        # add the fast_param label
+        if 'fast_param' in data:
+            self.fast_param_label.setText(f'fast_param: {data["fast_param"]}')
 
         # parse the slow_setpoints field of the metadata
         if 'slow_setpoints' in data:
             self.slow_setpoints = data['slow_setpoints']
             self.slow_setpoints_text.setText('\n'.join(map(str, self.slow_setpoints)))
+        elif 'setpoints' in data:
+            self.setpoints = data['setpoints']
+            self.slow_setpoints_text.setText('\n'.join(map(str, self.setpoints)))
+            self.fast_setpoints_text.setText('')                
+
 
         # parse the fast_setpoints field of the metadata
         if 'fast_setpoints' in data:
             self.fast_setpoints = data['fast_setpoints']
-            self.fast_setpoints_text.setText('\n'.join(map(str, self.fast_setpoints)))
+            self.fast_setpoints_text.setText('\n'.join(map(str, self.fast_setpoints)))                
         
         # set the columns to the columns field of the metadata
         self.columns = data['columns']
@@ -419,7 +442,7 @@ class MainWindow(QMainWindow):
             self.z_axis_combo.addItems(self.columns)
             # set the x axis to be the slow axis from the metadata
             # find the string 'slow_param' in the meta_text and set the x axis to be the following string
-            if 'slow_param: ' in meta_text:
+            if 'slow_param' in data:
                 # fine the corresponding dict value
                 slow_param = data['slow_param']
                 # if slow_param is a list, set the x axis to be the first element of the list
@@ -427,7 +450,7 @@ class MainWindow(QMainWindow):
                     slow_param = slow_param[0]
                 # set the x axis to be the slow axis from the metadata
                 self.x_axis_combo.setCurrentText(slow_param)
-            if 'fast_param: ' in meta_text:
+            if 'fast_param' in data:
                 # fine the corresponding dict value
                 fast_param = data['fast_param']
                 # if fast_param is a list, set the y axis to be the first element of the list
@@ -439,7 +462,7 @@ class MainWindow(QMainWindow):
             self.z_axis_combo.clear()
             # set the x axis to be the slow axis from the metadata
             # find the string 'param' in the columns and set the x axis to be the following string
-            if 'param: ' in meta_text:
+            if 'param' in data:
                 # fine the corresponding dict value
                 param = data['param']
                 # set the x axis to be the param from the metadata
@@ -466,10 +489,7 @@ class MainWindow(QMainWindow):
         
     # plot the data
     def plot_data(self, datadir, sub_dir):
-        if self.data_type == '1D':
-            data = sl.pload1d(datadir, sub_dir)
-        else:
-            data = sl.pload2d(datadir, sub_dir)
+        data = sl.pload(datadir, sub_dir)
 
         # Clear the axes
         self.ax.clear()
