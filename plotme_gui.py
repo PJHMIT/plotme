@@ -281,14 +281,14 @@ class MainWindow(QMainWindow):
         self.slow_setpoints_text = QTextEdit(self.slow_setpoints_frame)
         self.col3_layout.addWidget(self.slow_setpoints_frame)
         # set the height of the slow_setpoints frame
-        self.slow_setpoints_frame.setFixedHeight(50)
+        self.slow_setpoints_frame.setFixedHeight(100)
 
         # create a frame for the fast_setpoints
         self.fast_setpoints_frame = QFrame()
         self.fast_setpoints_text = QTextEdit(self.fast_setpoints_frame)
         self.col3_layout.addWidget(self.fast_setpoints_frame)
         # set the height of the fast_setpoints frame
-        self.fast_setpoints_frame.setFixedHeight(50)
+        self.fast_setpoints_frame.setFixedHeight(100)
         ### end of populate column 3 layout ###
 
         # Set the layout of the central widget
@@ -423,11 +423,17 @@ class MainWindow(QMainWindow):
             if 'slow_param: ' in meta_text:
                 # fine the corresponding dict value
                 slow_param = data['slow_param']
+                # if slow_param is a list, set the x axis to be the first element of the list
+                if isinstance(slow_param, list):
+                    slow_param = slow_param[0]
                 # set the x axis to be the slow axis from the metadata
                 self.x_axis_combo.setCurrentText(slow_param)
             if 'fast_param: ' in meta_text:
                 # fine the corresponding dict value
                 fast_param = data['fast_param']
+                # if fast_param is a list, set the y axis to be the first element of the list
+                if isinstance(fast_param, list):
+                    fast_param = fast_param[0]
                 # set the y axis to be the fast axis from the metadata
                 self.y_axis_combo.setCurrentText(fast_param)
         else:
