@@ -17,7 +17,6 @@ from PyQt5 import QtWidgets
 # To do:
 # 1. plot multiple data sets as multiple lines
 # 2. if the div channel isn't set to 1, add it to the title
-# test
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -76,7 +75,7 @@ class MainWindow(QMainWindow):
         # Add the container widget to the layout of the figure window
         self.figure_window.layout().addWidget(toolbar_canvas_widget)
 
-        ## populate col1_layout
+        ## populate column 1 layout
         # create a vertical box for the directory button and label
         self.directory_layout = QVBoxLayout()
         self.col1_layout.addLayout(self.directory_layout)
@@ -155,10 +154,10 @@ class MainWindow(QMainWindow):
         self.plot_button.setFixedHeight(100)
         # make the plot botton bold font and 2 point outline, white background, font 18
         self.plot_button.setStyleSheet("font: bold 18px; color: black; background-color: white; border: 2px solid black;")
-        ### end of populate the col1_layout ###
+        ### end of populate the column 1 layout ###
 
 
-        ### populate the right column layout ###
+        ### populate column 2 layout ###
         # Create a vertical layout
         log_layout = QVBoxLayout()
 
@@ -175,10 +174,6 @@ class MainWindow(QMainWindow):
         # Add the log layout to the right column layout
         self.col2_layout.addLayout(log_layout)
 
-        # Create a horizontal layout for clim
-        # self.clim_layout = QHBoxLayout()
-        # self.col2_layout.addLayout(self.clim_layout)
-
         # Create a checkbox for auto clim
         self.auto_clim_checkbox = QCheckBox("Auto clim")
         self.col2_layout.addWidget(self.auto_clim_checkbox)
@@ -189,25 +184,19 @@ class MainWindow(QMainWindow):
         self.clim_min_max_layout = QVBoxLayout()
         self.col2_layout.addLayout(self.clim_min_max_layout)
 
-        # Create a horizontal layout for clim min
-        # self.clim_min_layout = QHBoxLayout()
         self.clim_min_label = QLabel("clim min")
         self.clim_min_text = QTextEdit()
         self.clim_min_text.setFixedHeight(35)
         self.clim_min_text.setFixedWidth(200)
         self.col2_layout.addWidget(self.clim_min_label)
         self.col2_layout.addWidget(self.clim_min_text) ## BRING THIS LINE BACK
-        # self.clim_min_max_layout.addLayout(self.clim_min_layout)
 
-        # Create a horizontal layout for clim max
-        # self.clim_max_layout = QHBoxLayout()
         self.clim_max_label = QLabel("clim max")
         self.clim_max_text = QTextEdit()
         self.clim_max_text.setFixedHeight(35)
         self.clim_max_text.setFixedWidth(200)
         self.col2_layout.addWidget(self.clim_max_label)
         self.col2_layout.addWidget(self.clim_max_text)
-        # self.clim_min_max_layout.addLayout(self.clim_max_layout)
 
         # create a button for multiple lines on off
         self.waterfall_checkbox = QCheckBox("Waterfall")
@@ -291,14 +280,14 @@ class MainWindow(QMainWindow):
         self.slow_setpoints_text = QTextEdit(self.slow_setpoints_frame)
         self.col3_layout.addWidget(self.slow_setpoints_frame)
         # set the height of the slow_setpoints frame
-        self.slow_setpoints_frame.setFixedHeight(50)
+        self.slow_setpoints_frame.setFixedHeight(100)
 
         # create a frame for the fast_setpoints
         self.fast_setpoints_frame = QFrame()
         self.fast_setpoints_text = QTextEdit(self.fast_setpoints_frame)
         self.col3_layout.addWidget(self.fast_setpoints_frame)
         # set the height of the fast_setpoints frame
-        self.fast_setpoints_frame.setFixedHeight(50)
+        self.fast_setpoints_frame.setFixedHeight(100)
         ### end of populate column 3 layout ###
 
         # Set the layout of the central widget
@@ -433,11 +422,17 @@ class MainWindow(QMainWindow):
             if 'slow_param: ' in meta_text:
                 # fine the corresponding dict value
                 slow_param = data['slow_param']
+                # if slow_param is a list, set the x axis to be the first element of the list
+                if isinstance(slow_param, list):
+                    slow_param = slow_param[0]
                 # set the x axis to be the slow axis from the metadata
                 self.x_axis_combo.setCurrentText(slow_param)
             if 'fast_param: ' in meta_text:
                 # fine the corresponding dict value
                 fast_param = data['fast_param']
+                # if fast_param is a list, set the y axis to be the first element of the list
+                if isinstance(fast_param, list):
+                    fast_param = fast_param[0]
                 # set the y axis to be the fast axis from the metadata
                 self.y_axis_combo.setCurrentText(fast_param)
         else:
