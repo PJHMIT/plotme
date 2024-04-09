@@ -76,7 +76,7 @@ class MainWindow(QMainWindow):
         # Add the container widget to the layout of the figure window
         self.figure_window.layout().addWidget(toolbar_canvas_widget)
 
-        ## populate col1_layout
+        ## populate column 1 layout
         # create a vertical box for the directory button and label
         self.directory_layout = QVBoxLayout()
         self.col1_layout.addLayout(self.directory_layout)
@@ -155,10 +155,10 @@ class MainWindow(QMainWindow):
         self.plot_button.setFixedHeight(100)
         # make the plot botton bold font and 2 point outline, white background, font 18
         self.plot_button.setStyleSheet("font: bold 18px; color: black; background-color: white; border: 2px solid black;")
-        ### end of populate the col1_layout ###
+        ### end of populate the column 1 layout ###
 
 
-        ### populate the right column layout ###
+        ### populate column 2 layout ###
         # Create a vertical layout
         log_layout = QVBoxLayout()
 
@@ -175,10 +175,6 @@ class MainWindow(QMainWindow):
         # Add the log layout to the right column layout
         self.col2_layout.addLayout(log_layout)
 
-        # Create a horizontal layout for clim
-        # self.clim_layout = QHBoxLayout()
-        # self.col2_layout.addLayout(self.clim_layout)
-
         # Create a checkbox for auto clim
         self.auto_clim_checkbox = QCheckBox("Auto clim")
         self.col2_layout.addWidget(self.auto_clim_checkbox)
@@ -189,25 +185,19 @@ class MainWindow(QMainWindow):
         self.clim_min_max_layout = QVBoxLayout()
         self.col2_layout.addLayout(self.clim_min_max_layout)
 
-        # Create a horizontal layout for clim min
-        # self.clim_min_layout = QHBoxLayout()
         self.clim_min_label = QLabel("clim min")
         self.clim_min_text = QTextEdit()
         self.clim_min_text.setFixedHeight(35)
         self.clim_min_text.setFixedWidth(200)
         self.col2_layout.addWidget(self.clim_min_label)
         self.col2_layout.addWidget(self.clim_min_text) ## BRING THIS LINE BACK
-        # self.clim_min_max_layout.addLayout(self.clim_min_layout)
 
-        # Create a horizontal layout for clim max
-        # self.clim_max_layout = QHBoxLayout()
         self.clim_max_label = QLabel("clim max")
         self.clim_max_text = QTextEdit()
         self.clim_max_text.setFixedHeight(35)
         self.clim_max_text.setFixedWidth(200)
         self.col2_layout.addWidget(self.clim_max_label)
         self.col2_layout.addWidget(self.clim_max_text)
-        # self.clim_min_max_layout.addLayout(self.clim_max_layout)
 
         # create a button for multiple lines on off
         self.waterfall_checkbox = QCheckBox("Waterfall")
