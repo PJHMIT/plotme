@@ -201,7 +201,7 @@ class MainWindow(QMainWindow):
         self.clim_widget.setFixedWidth(250)
                 
         # Create a checkbox for auto clim
-        self.manual_clim_checkbox = QCheckBox("Auto clim")
+        self.manual_clim_checkbox = QCheckBox("Man clim")
         self.clim_layout.addWidget(self.manual_clim_checkbox)
         # check auto clim by default
         self.manual_clim_checkbox.setChecked(False)
