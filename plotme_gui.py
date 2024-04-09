@@ -17,16 +17,22 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 
 # To do:
 # 1. plot multiple data sets as multiple lines
+# 2. try to plot subdir 100 data set
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
 
+        # define widths of the columns
+        self.col1_width = 400
+        self.col2_width = 200
+        self.col3_width = 250
+        
         # Create a central widget
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         # set an minimum width
-        self.setMinimumWidth(800)
+        self.setMinimumWidth(self.col1_width + self.col2_width + self.col3_width + 50)
         # name the window
         self.setWindowTitle('Plotme')
 
@@ -40,7 +46,7 @@ class MainWindow(QMainWindow):
         self.col1_widget.setLayout(self.col1_layout)
         self.layout.addWidget(self.col1_widget)
         # set the minimum width of the col1_widget
-        self.col1_widget.setMinimumWidth(300)
+        self.col1_widget.setMinimumWidth(self.col1_width)
 
         # Create a widget and vertical layout for the plot settings
         self.col2_widget = QWidget()
@@ -48,7 +54,7 @@ class MainWindow(QMainWindow):
         self.col2_widget.setLayout(self.col2_layout)
         self.layout.addWidget(self.col2_widget)
         # set the minimum width of the col2_widget
-        self.col2_widget.setMinimumWidth(300)
+        self.col2_widget.setMinimumWidth(self.col2_width)
 
         # Create a widget and vertical layout for the time and metadata
         self.col3_widget = QWidget()
@@ -56,7 +62,7 @@ class MainWindow(QMainWindow):
         self.col3_widget.setLayout(self.col3_layout)
         self.layout.addWidget(self.col3_widget)
         # set the minimum width of the col3_widget
-        self.col3_widget.setMinimumWidth(300)
+        self.col3_widget.setMinimumWidth(self.col3_width)
 
         # Create a new window for the figure
         self.figure_window = QWidget()
@@ -177,11 +183,23 @@ class MainWindow(QMainWindow):
         self.logx_checkbox = QCheckBox("logx")
         self.logy_checkbox = QCheckBox("logy")
         self.logz_checkbox = QCheckBox("logz")
-
+        
+        # create a text box for linthresh
+        self.linthresh_text = QTextEdit()
+        self.linthresh_text.setFixedHeight(35)
+        
         # Add checkboxes to the layout
         log_layout.addWidget(self.logx_checkbox)
         log_layout.addWidget(self.logy_checkbox)
         log_layout.addWidget(self.logz_checkbox)
+
+        # add horizontal layout for linthresh
+        linthresh_layout = QHBoxLayout()
+        linthresh_label = QLabel("linear threshhold:")
+        linthresh_layout.addWidget(linthresh_label)
+        linthresh_layout.addWidget(self.linthresh_text)
+        log_layout.addLayout(linthresh_layout)
+
 
         # Add the log layout to the right column layout
         self.col2_layout.addLayout(log_layout)
@@ -198,7 +216,7 @@ class MainWindow(QMainWindow):
         self.clim_widget.setLayout(self.clim_layout)
         self.col2_layout.addWidget(self.clim_widget)
         # set width of the clim widget
-        self.clim_widget.setFixedWidth(250)
+        # self.clim_widget.setFixedWidth(250)
                 
         # Create a checkbox for auto clim
         self.manual_clim_checkbox = QCheckBox("Man clim")
@@ -241,6 +259,41 @@ class MainWindow(QMainWindow):
         self.grid_checkbox = QCheckBox("Grid")
         self.col2_layout.addWidget(self.grid_checkbox)
 
+        # create a checkbox for plot data subset
+        self.subset_checkbox = QCheckBox("Plot data subset")
+        self.col2_layout.addWidget(self.subset_checkbox)
+
+        # creat a ind1 widget with a horizontal layout
+        self.index1_widget = QWidget()
+        self.index1_layout = QHBoxLayout()
+        self.index1_widget.setLayout(self.index1_layout)
+        # add the index1 widget to the column 2 layout
+        self.col2_layout.addWidget(self.index1_widget)
+
+        # create a label for index 1
+        index1_label = QLabel('first index:')
+        self.index1_layout.addWidget(index1_label)        
+        # create text boxes for index 1
+        self.index1_text = QTextEdit()
+        self.index1_text.setFixedHeight(35)
+        self.index1_layout.addWidget(self.index1_text)
+
+        # creat a ind2 widget with a horizontal layout
+        self.index2_widget = QWidget()
+        self.index2_layout = QHBoxLayout()
+        self.index2_widget.setLayout(self.index2_layout)
+        # add the index2 widget to the column 2 layout
+        self.col2_layout.addWidget(self.index2_widget)
+
+        # create a label for index 2
+        index2_label = QLabel('last index:')
+        self.index2_layout.addWidget(index2_label)
+        # create text boxes for index 2
+        self.index2_text = QTextEdit()
+        self.index2_text.setFixedHeight(35)
+        self.index2_layout.addWidget(self.index2_text)
+                       
+
         # create a colormap widget with a horizontal layout
         self.colormap_widget = QWidget()
         self.colormap_layout = QHBoxLayout()
@@ -259,7 +312,7 @@ class MainWindow(QMainWindow):
         self.save_dir_button.clicked.connect(self.save_directory_button_clicked)
         self.col2_layout.addWidget(self.save_dir_button)
         # set width of the save directory button
-        self.save_dir_button.setFixedWidth(200)
+        # self.save_dir_button.setFixedWidth(200)
 
         # add a save directory label
         self.save_dir_label = QLabel('Save Directory:')
@@ -272,7 +325,7 @@ class MainWindow(QMainWindow):
         # add a filename text box
         self.filename_text = QTextEdit()
         self.filename_text.setFixedHeight(35)
-        self.filename_text.setFixedWidth(250)
+        # self.filename_text.setFixedWidth(250)
         self.col2_layout.addWidget(self.filename_text)
         
         # create an export filetype horizontal layout
@@ -294,7 +347,7 @@ class MainWindow(QMainWindow):
         self.export_fig_button.clicked.connect(self.export_fig_button_clicked)
         self.col2_layout.addWidget(self.export_fig_button)
         # set width of the export button
-        self.export_fig_button.setFixedWidth(200)
+        # self.export_fig_button.setFixedWidth(200)
 
         ### end of populate column 2 layout ###
 
@@ -574,11 +627,18 @@ class MainWindow(QMainWindow):
                 return
             
             if logz == True:
+                # make sure linthresh is a float
+                try:
+                    linthresh = float(self.linthresh_text.toPlainText())
+                except:
+                    linthresh = 0.1
+                    # set linthres text to 0.1
+                    self.linthresh_text.setText(str(linthresh))
                 # make sure clim_min and clim_max are floats
                 if manual_clim == True and isinstance(clim_min, float) and isinstance(clim_max, float):
-                    norm = matplotlib.colors.SymLogNorm(vmin=clim_min, vmax=clim_max)    
+                    norm = matplotlib.colors.SymLogNorm(linthresh, vmin=clim_min, vmax=clim_max)    
                 else:
-                    norm = matplotlib.colors.SymLogNorm()
+                    norm = matplotlib.colors.SymLogNorm(linthresh)
                 props = dict(rasterized=True, cmap=colormap, norm=norm) 
             else:
                 if manual_clim == True and isinstance(clim_min, float) and isinstance(clim_max, float):
@@ -586,10 +646,42 @@ class MainWindow(QMainWindow):
                 else:
                     props = dict(rasterized=True, cmap=colormap) 
                     
+            xs = data[x_axis]
+            ys = data[y_axis]
+            zs = data[z_axis]
+            try:
+                divs = data[div_channel]
+            except:
+                divs = 1
+
+            # if subset_checkbox is checked plot only the subset of the data
+            if self.subset_checkbox.isChecked():
+                # make sure ind1 and ind2 have values
+                try:
+                    ind1 = int(self.index1_text.toPlainText())
+                    ind2 = int(self.index2_text.toPlainText())
+                except:
+                    ind1 = 0
+                    ind2 = len(xs)
+                    # set the text boxes to 0 and len(xs)
+                    self.index1_text.setText('0')
+                    self.index2_text.setText(str(len(xs)))
+                if ind1 > ind2:
+                    ind1, ind2 = ind2, ind1
+                ind1 = int(self.index1_text.toPlainText())
+                ind2 = int(self.index2_text.toPlainText())
+                xs = xs[ind1:ind2]
+                ys = ys[ind1:ind2]
+                zs = zs[ind1:ind2]
+                try:
+                    divs = data[div_channel][ind1:ind2]
+                except:
+                    divs = 1
+
             if div_channel == '1':
-                self.ax.pcolormesh(data[x_axis], data[y_axis], data[z_axis], **props)
+                self.ax.pcolormesh(xs, ys, zs, **props)
             else:
-                self.ax.pcolormesh(data[x_axis], data[y_axis], data[z_axis]/data[div_channel], **props)
+                self.ax.pcolormesh(xs, ys, zs/divs, **props)
             self.ax.set_xlabel(x_axis)
             self.ax.set_ylabel(y_axis)
 
@@ -613,10 +705,36 @@ class MainWindow(QMainWindow):
             plt.colorbar(self.ax.collections[0], cax=self.cax)
 
         else:
+            xs = data[x_axis]
+            ys = data[y_axis]
+                      
+            # if subset_checkbox is checked plot only the subset of the data
+            if self.subset_checkbox.isChecked():
+                # make sure ind1 and ind2 have values
+                try:
+                    ind1 = int(self.index1_text.toPlainText())
+                    ind2 = int(self.index2_text.toPlainText())
+                except:
+                    ind1 = 0
+                    ind2 = len(xs)
+                    # set the text boxes to 0 and len(xs)
+                    self.index1_text.setText('0')
+                    self.index2_text.setText(str(len(xs)))
+                if ind1 > ind2:
+                    ind1, ind2 = ind2, ind1
+                ind1 = int(self.index1_text.toPlainText())
+                ind2 = int(self.index2_text.toPlainText())
+                xs = xs[ind1:ind2]
+                ys = ys[ind1:ind2]
+                try:
+                    divs = data[div_channel][ind1:ind2]
+                except:
+                    divs = 1
+
             if div_channel == '1':
-                self.ax.plot(data[x_axis], data[y_axis], '.')
+                self.ax.plot(xs, ys, '.')
             else:
-                self.ax.plot(data[x_axis], data[y_axis]/data[div_channel], '.')
+                self.ax.plot(xs, ys/divs, '.')
             self.ax.set_xlabel(x_axis)
             self.ax.set_ylabel(y_axis)
             plotted_data = y_axis if div_channel == '1' else f'{y_axis}/{div_channel}'
